@@ -2,11 +2,15 @@ package paintbrushapp;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import static java.lang.Integer.min;
 import static java.lang.Math.abs;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 /**
@@ -15,17 +19,21 @@ import javax.swing.*;
  */
 public class MyPanel extends JPanel implements Runnable {
 
+    // Paint Attributes
     static int x1, y1, x2, y2;
+    static Color color;
+    static Stroke stroke;
+    protected static Vector<Shape> history;
+    protected static int historyCounter;
+
+    // Temp Variables
     Line tempLine;
     Oval tempOval;
     Rectangle tempRect;
     FreeHand tempFShape;
-    static Color color;
-    static Stroke stroke;
+    Eraser tempEraser;
 
-    protected static Vector<Shape> history;
-    protected static int historyCounter;
-
+    // Flags
     static boolean isColorClicked;
     static boolean isLineClicked;
     static boolean isRectClicked;
@@ -34,14 +42,13 @@ public class MyPanel extends JPanel implements Runnable {
     static boolean isEraserClicked;
     static boolean isFilledChecked;
     static boolean isChanged;
+    static boolean isSaved = false;
 
     public MyPanel() {
         this.setBackground(Color.WHITE);
 
-        x1 = y1 = x2 = y2 = 0;
-
+        x1 = y1 = x2 = y2 = historyCounter = 0;
         history = new Vector();
-
         stroke = new BasicStroke(2f); // default stroke (Solid)
 
         this.setFocusable(true);   //make the default panel focus is false 
@@ -57,15 +64,13 @@ public class MyPanel extends JPanel implements Runnable {
     {
 
         @Override
-        public void mouseClicked(MouseEvent e) {
-        }
-
-        @Override
         public void mousePressed(MouseEvent e) {
             x1 = e.getX();
             y1 = e.getY();
             if (isFreeHandClicked) {
                 tempFShape = new FreeHand(color, stroke);
+            } else if (isEraserClicked) {
+                tempEraser = new Eraser(new Color(255, 255, 255), stroke, Oval.TYPE);
             }
         }
 
@@ -93,7 +98,13 @@ public class MyPanel extends JPanel implements Runnable {
                     history.add(tempFShape);
                     historyCounter++;
                     x1 = x2 = y1 = y2 = 0;
+                } else if (isEraserClicked) {
+                    history.add(tempEraser);
+                    historyCounter++;
+                    x1 = x2 = y1 = y2 = 0;
+                    System.out.println(historyCounter);
                 }
+
             }
         }
 
@@ -103,6 +114,10 @@ public class MyPanel extends JPanel implements Runnable {
 
         @Override
         public void mouseExited(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
         }
 
     }
@@ -117,7 +132,6 @@ public class MyPanel extends JPanel implements Runnable {
                     x2 = e.getX();
                     y2 = e.getY();
                     updateUI();
-                    isChanged = true;
 
                 } else if (isFreeHandClicked) {
                     Graphics g = getGraphics();
@@ -133,8 +147,12 @@ public class MyPanel extends JPanel implements Runnable {
                 } else if (isEraserClicked) //Eraser dragging
                 {
                     Graphics g = getGraphics();
+                    //Graphics2D g2d = (Graphics2D) g;
                     g.setColor(Color.WHITE);
-                    g.fillRect(e.getX(), e.getY(), 20, 15);
+                    tempOval = new Oval(e.getX(), e.getY(), 10, 10, Color.WHITE, stroke, true);
+                    tempEraser.pushEraser(tempOval);
+                    g.fillOval(tempOval.getX(), tempOval.getY(), tempOval.getWidth(), tempOval.getHeight());
+
                 }
             }
         }
@@ -192,8 +210,17 @@ public class MyPanel extends JPanel implements Runnable {
                             g.drawLine(tempLine.getxStart(), tempLine.getyStart(), tempLine.getxEnd(), tempLine.getyEnd());
                         }
                     }
-                }
+                    case Eraser.TYPE -> {
+                        g2d.setStroke(history.elementAt(i).getStroke());
+                        g2d.setColor(history.elementAt(i).getColor());
+                        tempEraser = (Eraser) history.elementAt(i); // TypeCasting!
 
+                        for (int j = 0; j < tempEraser.ovalEraser.size(); j++) {
+                            tempOval = tempEraser.ovalEraser.elementAt(j);
+                            g2d.fillOval(tempOval.getX(), tempOval.getY(), tempOval.getWidth(), tempOval.getHeight());
+                        }
+                    }
+                }
             }
         }
         if (this.isFocusable() && (x1 > 0 && y1 > 0)) {
@@ -221,14 +248,13 @@ public class MyPanel extends JPanel implements Runnable {
                     g2d.drawRect(min(x1, x2), min(y1, y2), abs(x1 - x2), abs(y1 - y2));
                 }
             }
-
         }
     }
 
     @Override
     public void run() {
         while (true) {
-
+            if (isSaved == true){this.saveImage();isSaved=false;}
             if (isChanged == true) {
                 this.repaint();
                 isChanged = false;
@@ -238,6 +264,25 @@ public class MyPanel extends JPanel implements Runnable {
             } catch (InterruptedException ex) {
                 Logger.getLogger(MyPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+    }
+
+    public void saveImage() {
+        BufferedImage imagebuf = null;
+        
+        try {
+            imagebuf = new Robot().createScreenCapture(this.bounds());
+        } catch (AWTException e1) {
+            e1.printStackTrace();
+        }
+        
+        Graphics2D graphics2D = imagebuf.createGraphics();
+        this.paint(graphics2D);
+        
+        try {
+            ImageIO.write(imagebuf, "jpeg", new File("save1.jpeg"));
+        } catch (IOException e) {
+            System.out.println("error");
         }
     }
 

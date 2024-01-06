@@ -8,23 +8,26 @@ import java.util.Vector;
  *
  * @author Mario
  */
-public class FreeHand extends Shape {
-    static final int TYPE = 100;
-    protected Vector<Line> freeshape;
-
+public class Eraser extends Shape {
+    static final int TYPE = 1000;
+    protected Vector<Line> lineEraser;
+    protected Vector<Oval> ovalEraser;
     
-    public FreeHand(Color color,Stroke stroke) {
+    public Eraser(Color color,Stroke stroke,int t) {
         super(color, stroke,TYPE);
-        freeshape = new Vector();
+        switch (t) {
+            case Line.TYPE -> lineEraser = new Vector();
+            case Oval.TYPE -> ovalEraser = new Vector();
+            default -> System.out.println("WRONG ERASER TYPE!!!!");
+        }
+    }
+   
+    public void pushEraser(Line l){
+    lineEraser.add(l);
     }
     
-    public Vector getFShape(){
-    
-        return freeshape;
-    }
-    
-    public void pushLine(Line l){
-    freeshape.add(l);
+    public void pushEraser(Oval o){
+    ovalEraser.add(o);
     }
     
 }

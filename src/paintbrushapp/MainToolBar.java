@@ -20,77 +20,70 @@ public class MainToolBar extends JToolBar {
         JButton redBtn = new JButton();     //Red button
         RedActionList redObj = new RedActionList();
         redBtn.addActionListener(redObj);
-        redBtn.setSize(30, 30);
         redBtn.setBackground(Color.RED);
         this.add(redBtn);
 
         JButton greenBtn = new JButton();   // Green button
         GreenActionList greenObj = new GreenActionList();
         greenBtn.addActionListener(greenObj);
-        greenBtn.setSize(30, 30);
         greenBtn.setBackground(Color.GREEN);
         this.add(greenBtn);
 
         JButton blueBtn = new JButton();    //Blue button
         BlueActionList blueObj = new BlueActionList();
         blueBtn.addActionListener(blueObj);
-        blueBtn.setSize(30, 30);
         blueBtn.setBackground(Color.BLUE);
         this.add(blueBtn);
 
         JButton lineBtn = new JButton("Line");  // Draw line button
         LineActionList lineObj = new LineActionList();
         lineBtn.addActionListener(lineObj);
-        lineBtn.setSize(120, 30);
         this.add(lineBtn);
 
         JButton rectBtn = new JButton("Rectangle");   //Draw rectangle button
         RectActionList rectObj = new RectActionList();
         rectBtn.addActionListener(rectObj);
-        rectBtn.setSize(120, 30);
         this.add(rectBtn);
 
         JButton ovaltBtn = new JButton("Oval"); //Draw oval button
         OvalActionList ovalObj = new OvalActionList();
         ovaltBtn.addActionListener(ovalObj);
-        ovaltBtn.setSize(120, 30);
         this.add(ovaltBtn);
 
         JCheckBox dottedCB = new JCheckBox("Dotted");    //Dotted Checkbox
         DottedItemList dottedObj = new DottedItemList();
         dottedCB.addItemListener(dottedObj);
-        dottedCB.setSize(70, 30);
         this.add(dottedCB);
 
         JCheckBox filledCB = new JCheckBox("Filled");    //Filled Checkbox
         FilledItemList filledObj = new FilledItemList();
         filledCB.addItemListener(filledObj);
-        filledCB.setSize(70, 30);
         this.add(filledCB);
 
         JButton freeBtn = new JButton("Free Hand");  // Free hand button
         FreeHandActionList fbreeObj = new FreeHandActionList();
         freeBtn.addActionListener(fbreeObj);
-        freeBtn.setSize(120, 30);
         this.add(freeBtn);
 
         JButton eraserBtn = new JButton("Eraser");    //Eraser button
         EraserActionList eraserObj = new EraserActionList();
         eraserBtn.addActionListener(eraserObj);
-        eraserBtn.setSize(120, 30);
         this.add(eraserBtn);
 
         JButton clearBtn = new JButton(" Clear All ");  // Clear All button
         ClearActionList clearObj = new ClearActionList();
         clearBtn.addActionListener(clearObj);
-        clearBtn.setSize(120, 30);
         this.add(clearBtn);
 
         JButton undoBtn = new JButton(" Undo ");  // Undo button
         UndoActionList undoObj = new UndoActionList();
         undoBtn.addActionListener(undoObj);
-        undoBtn.setSize(120, 30);
         this.add(undoBtn);
+
+        JButton saveBtn = new JButton(" Save ");  // SaveAs button
+        SaveAsJPG saveObj = new SaveAsJPG();
+        saveBtn.addActionListener(saveObj);
+        this.add(saveBtn);
     }
 
     //*************** SHAPES BUTTONS  *****************\\
@@ -98,7 +91,7 @@ public class MainToolBar extends JToolBar {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            
+
             if (MyPanel.isColorClicked == true) {
                 MyPanel.isLineClicked = true;
                 MyPanel.isRectClicked = false;
@@ -106,7 +99,7 @@ public class MainToolBar extends JToolBar {
                 MyPanel.isFreeHandClicked = false;
                 MyPanel.isEraserClicked = false;
             } else if (MyPanel.isColorClicked == false) {
-                JOptionPane.showMessageDialog(null, "Please choose the color first", "Choose color", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Please choose the color first", "Choose Color", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -115,7 +108,7 @@ public class MainToolBar extends JToolBar {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            
+
             if (MyPanel.isColorClicked == true) {
                 MyPanel.isRectClicked = true;
                 MyPanel.isLineClicked = false;
@@ -123,7 +116,7 @@ public class MainToolBar extends JToolBar {
                 MyPanel.isFreeHandClicked = false;
                 MyPanel.isEraserClicked = false;
             } else if (MyPanel.isColorClicked == false) {
-                JOptionPane.showMessageDialog(null, "Please choose the color first", "Choose color", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Please choose the color first", "Choose Color", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -146,17 +139,14 @@ public class MainToolBar extends JToolBar {
     }
     //*************** Other BUTTONS  *****************\\
 
-    public class FreeHandActionList implements ActionListener //check
-    {
+    public class FreeHandActionList implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
 
             if (MyPanel.isColorClicked == true && MyPanel.isFreeHandClicked == false) {
-                //MyPanel.this.setFocusable(true);  //setPanelFocus true after user choose color and click free hand; 
                 MyPanel.isFreeHandClicked = true;
                 MyPanel.isLineClicked = MyPanel.isRectClicked = MyPanel.isOvalClicked = false;
-                //MyPanel.this.updateUI();
 
             } else if (MyPanel.isColorClicked == false) {
                 JOptionPane.showMessageDialog(null, "Please choose the color first", "Choose color", JOptionPane.ERROR_MESSAGE);
@@ -190,7 +180,7 @@ public class MainToolBar extends JToolBar {
             MyPanel.x2 = 0;
             MyPanel.y1 = 0;
             MyPanel.y2 = 0;
-            MyPanel.isChanged=true;
+            MyPanel.isChanged = true;
         }
 
     }
@@ -203,12 +193,21 @@ public class MainToolBar extends JToolBar {
                 MyPanel.history.remove(MyPanel.history.lastElement());
                 MyPanel.historyCounter--;
                 MyPanel.x1 = MyPanel.x2 = MyPanel.y1 = MyPanel.y2 = 0;
-                MyPanel.isChanged=true;
+                MyPanel.isChanged = true;
 
             } else {
                 JOptionPane.showInternalMessageDialog(null, "More undo pressing will not undo your choices in life!", "مفيش تانى!", JOptionPane.WARNING_MESSAGE);
             }
         }
+    }
+
+    public class SaveAsJPG implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            MyPanel.isSaved=true;
+        }
+
     }
 
     //*************** Checklists  *****************\\

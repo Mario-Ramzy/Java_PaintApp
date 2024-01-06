@@ -9,7 +9,7 @@ import java.util.Vector;
  * @author Mario
  */
 public class FreeHand extends Shape {
-    static final int TYPE = 100;
+    static final int TYPE = 888;
     protected Vector<Line> freeshape;
 
     
