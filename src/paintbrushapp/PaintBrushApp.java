@@ -1,6 +1,9 @@
 package paintbrushapp;
 
-import javax.swing.JFrame;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import javax.swing.*;
+
 
 /**
  *
@@ -8,23 +11,21 @@ import javax.swing.JFrame;
  */
 public class PaintBrushApp extends JFrame {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
       
-        JFrame myFrame = new JFrame();
-        myFrame.setTitle("Paint");
-        myFrame.setSize(800, 800);
-        myFrame.setLocationRelativeTo(null);
-        
+        JFrame myFrame = new JFrame("Java Paint App");
+        MainToolBar mainBar = new MainToolBar();
+        JPanel p = new JPanel();
         MyPanel myPanel = new MyPanel();
-        myPanel.setLayout(null); // removing java gui grid --> to be able to move buttons freely
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(mainBar);
+        myFrame.add(mainBar, BorderLayout.NORTH);
+        myFrame.add(myPanel, BorderLayout.CENTER);
         
-        myFrame.setContentPane(myPanel);
         
+        myFrame.setSize(900, 500);
+        myFrame.setLocationRelativeTo(null);
         myFrame.setVisible(true);
-        
         myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
     }
     
