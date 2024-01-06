@@ -186,6 +186,7 @@ public class MainToolBar extends JToolBar {
             MyPanel.y1 = 0;
             MyPanel.y2 = 0;
             MyPanel.isChanged = true;
+            MyPanel.imageBuffer = null;
         }
 
     }
@@ -219,7 +220,7 @@ public class MainToolBar extends JToolBar {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Mesh nasy 7aga??");
+            MyPanel.isFileOpened=true;
         }
 
     }

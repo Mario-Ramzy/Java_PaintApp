@@ -19,7 +19,7 @@ public class PaintBrushApp extends JFrame {
         MyPanel myPanel = new MyPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.add(mainBar);
-        myFrame.add(mainBar, BorderLayout.NORTH);
+        myFrame.add(mainBar, BorderLayout.SOUTH);
         myFrame.add(myPanel, BorderLayout.CENTER);
         
         

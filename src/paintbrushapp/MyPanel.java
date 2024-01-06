@@ -3,6 +3,7 @@ package paintbrushapp;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Integer.min;
@@ -26,7 +27,8 @@ public class MyPanel extends JPanel implements Runnable {
     static Stroke stroke;
     protected static Vector<Shape> history;
     protected static int historyCounter;
-
+    static BufferedImage imageBuffer = null;
+    
     // Temp Variables
     Line tempLine;
     Oval tempOval;
@@ -44,6 +46,7 @@ public class MyPanel extends JPanel implements Runnable {
     static boolean isFilledChecked;
     static boolean isChanged;
     static boolean isSaved = false;
+    static boolean isFileOpened = false;
 
     public MyPanel() {
         this.setBackground(Color.WHITE);
@@ -169,6 +172,12 @@ public class MyPanel extends JPanel implements Runnable {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
+        
+        if (imageBuffer != null){
+        g.drawImage(imageBuffer, 0, 0, this);
+        System.out.println(imageBuffer.getRGB(x1, y1));
+        }
+        
         if (historyCounter > 0) {
             for (int i = 0; i < historyCounter; i++) {
                 switch (history.elementAt(i).getType()) {
@@ -259,6 +268,10 @@ public class MyPanel extends JPanel implements Runnable {
                 this.saveImage();
                 isSaved = false;
             }
+            if (isFileOpened == true) {
+                this.openImage();
+                isFileOpened = false;
+            }
             if (isChanged == true) {
                 this.repaint();
                 isChanged = false;
@@ -272,11 +285,11 @@ public class MyPanel extends JPanel implements Runnable {
     }
 
     public void saveImage() {
-        BufferedImage imagebuf = null;
+       BufferedImage imageTemp = null;
 
         try {
-            imagebuf = new Robot().createScreenCapture(this.bounds());
-            Graphics2D graphics2D = imagebuf.createGraphics();
+            imageTemp = new Robot().createScreenCapture(this.bounds());
+            Graphics2D graphics2D = imageTemp.createGraphics();
             this.paint(graphics2D);
         } catch (AWTException e1) {
             e1.printStackTrace();
@@ -292,18 +305,17 @@ public class MyPanel extends JPanel implements Runnable {
         int userSelection = fileChooser.showSaveDialog(new JFrame());
 
         if (userSelection == JFileChooser.APPROVE_OPTION) {
-           
+
             File fileToSave = null;
-            
+
             if (!fileChooser.getSelectedFile().getName().endsWith(".jpg")) {
-                fileToSave = new File(fileChooser.getSelectedFile()+".jpg");
+                fileToSave = new File(fileChooser.getSelectedFile() + ".jpg");
             } else {
-            fileToSave = fileChooser.getSelectedFile();
+                fileToSave = fileChooser.getSelectedFile();
             }
-            
+
             try {
-                ImageIO.write(imagebuf, "jpg", fileToSave);
-                System.out.println(fileToSave.getAbsolutePath());
+                ImageIO.write(imageTemp, "jpg", fileToSave);
                 JOptionPane.showMessageDialog(null, "Image Saved Successfully!", "Saved", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
                 System.out.println("error");
@@ -312,7 +324,26 @@ public class MyPanel extends JPanel implements Runnable {
         } else {
             JOptionPane.showMessageDialog(null, "Image not SAVED! your worthless painting is in DANGER!", "Cancelled", JOptionPane.INFORMATION_MESSAGE);
         }
-        
+
     }
 
+    public void openImage() {
+        
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Choose Image...");
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter extFilter = new FileNameExtensionFilter("JPEG file", "jpg", "jpeg");
+        fileChooser.addChoosableFileFilter(extFilter);
+        int userSelection = fileChooser.showOpenDialog(new JFrame());
+        
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            try {
+                imageBuffer = ImageIO.read(new File(fileChooser.getSelectedFile().toURI()));
+                isChanged=true;
+            } catch (IOException ex) {
+                System.out.println("hiiii");
+            }
+        }
+
+    }
 }
