@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -254,7 +255,10 @@ public class MyPanel extends JPanel implements Runnable {
     @Override
     public void run() {
         while (true) {
-            if (isSaved == true){this.saveImage();isSaved=false;}
+            if (isSaved == true) {
+                this.saveImage();
+                isSaved = false;
+            }
             if (isChanged == true) {
                 this.repaint();
                 isChanged = false;
@@ -269,21 +273,46 @@ public class MyPanel extends JPanel implements Runnable {
 
     public void saveImage() {
         BufferedImage imagebuf = null;
-        
+
         try {
             imagebuf = new Robot().createScreenCapture(this.bounds());
+            Graphics2D graphics2D = imagebuf.createGraphics();
+            this.paint(graphics2D);
         } catch (AWTException e1) {
             e1.printStackTrace();
         }
-        
-        Graphics2D graphics2D = imagebuf.createGraphics();
-        this.paint(graphics2D);
-        
-        try {
-            ImageIO.write(imagebuf, "jpeg", new File("save1.jpeg"));
-        } catch (IOException e) {
-            System.out.println("error");
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Specify location to save the paint");
+
+        fileChooser.setAcceptAllFileFilterUsed(false);
+
+        FileNameExtensionFilter extFilter = new FileNameExtensionFilter("JPEG file", "jpg", "jpeg");
+        fileChooser.addChoosableFileFilter(extFilter);
+        int userSelection = fileChooser.showSaveDialog(new JFrame());
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+           
+            File fileToSave = null;
+            
+            if (!fileChooser.getSelectedFile().getName().endsWith(".jpg")) {
+                fileToSave = new File(fileChooser.getSelectedFile()+".jpg");
+            } else {
+            fileToSave = fileChooser.getSelectedFile();
+            }
+            
+            try {
+                ImageIO.write(imagebuf, "jpg", fileToSave);
+                System.out.println(fileToSave.getAbsolutePath());
+                JOptionPane.showMessageDialog(null, "Image Saved Successfully!", "Saved", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                System.out.println("error");
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Image not SAVED! your worthless painting is in DANGER!", "Cancelled", JOptionPane.INFORMATION_MESSAGE);
         }
+        
     }
 
 }

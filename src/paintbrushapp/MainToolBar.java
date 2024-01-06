@@ -80,10 +80,15 @@ public class MainToolBar extends JToolBar {
         undoBtn.addActionListener(undoObj);
         this.add(undoBtn);
 
-        JButton saveBtn = new JButton(" Save ");  // SaveAs button
+        JButton saveBtn = new JButton(" Save ");  // Save button
         SaveAsJPG saveObj = new SaveAsJPG();
         saveBtn.addActionListener(saveObj);
         this.add(saveBtn);
+        
+        JButton openBtn = new JButton(" Open ");  // Open button
+        OpenJPG openObj = new OpenJPG();
+        openBtn.addActionListener(openObj);
+        this.add(openBtn);
     }
 
     //*************** SHAPES BUTTONS  *****************\\
@@ -206,6 +211,15 @@ public class MainToolBar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
             MyPanel.isSaved=true;
+        }
+
+    }
+    
+    public class OpenJPG implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Mesh nasy 7aga??");
         }
 
     }
