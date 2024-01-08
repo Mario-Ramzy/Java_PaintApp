@@ -5,7 +5,7 @@ import java.awt.Stroke;
 
 /**
  *
- * @author marymnasr
+ * @author Mario & Marymnasr
  */
 public class Oval extends Shape {
     public static final int TYPE = 0;

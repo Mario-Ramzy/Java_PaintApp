@@ -5,7 +5,7 @@ import java.awt.Stroke;
 
 /**
  *
- * @author marymnasr
+ * @author Mario & Marymnasr
  */
 public class Line extends Shape {
     static final int TYPE = 1;

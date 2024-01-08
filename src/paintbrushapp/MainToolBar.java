@@ -2,6 +2,7 @@ package paintbrushapp;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -10,43 +11,35 @@ import javax.swing.*;
 
 /**
  *
- * @author Mario
+ * @author Mario & Marymnasr
  */
 public class MainToolBar extends JToolBar {
+
+    static JButton colorButton;
 
     public MainToolBar() {
         setRollover(true);
 
-        JButton redBtn = new JButton();     //Red button
-        RedActionList redObj = new RedActionList();
-        redBtn.addActionListener(redObj);
-        redBtn.setBackground(Color.RED);
-        this.add(redBtn);
+        colorButton = new JButton("     ");     //Color button
+        ColorButtonAction redObj = new ColorButtonAction();
+        colorButton.addActionListener(redObj);
+        colorButton.setBackground(MyPanel.color);
+        this.add(colorButton);
 
-        JButton greenBtn = new JButton();   // Green button
-        GreenActionList greenObj = new GreenActionList();
-        greenBtn.addActionListener(greenObj);
-        greenBtn.setBackground(Color.GREEN);
-        this.add(greenBtn);
-
-        JButton blueBtn = new JButton();    //Blue button
-        BlueActionList blueObj = new BlueActionList();
-        blueBtn.addActionListener(blueObj);
-        blueBtn.setBackground(Color.BLUE);
-        this.add(blueBtn);
+        this.add(new Separator(new Dimension(20, 30)));
 
         JButton lineBtn = new JButton("Line");  // Draw line button
-        LineActionList lineObj = new LineActionList();
+        LineButtonAction lineObj = new LineButtonAction();
         lineBtn.addActionListener(lineObj);
         this.add(lineBtn);
 
         JButton rectBtn = new JButton("Rectangle");   //Draw rectangle button
-        RectActionList rectObj = new RectActionList();
+        RectButtonAction rectObj = new RectButtonAction();
         rectBtn.addActionListener(rectObj);
         this.add(rectBtn);
 
         JButton ovaltBtn = new JButton("Oval"); //Draw oval button
-        OvalActionList ovalObj = new OvalActionList();
+        OvalButtonAction ovalObj = new OvalButtonAction();
         ovaltBtn.addActionListener(ovalObj);
         this.add(ovaltBtn);
 
@@ -61,107 +54,95 @@ public class MainToolBar extends JToolBar {
         this.add(filledCB);
 
         JButton freeBtn = new JButton("Free Hand");  // Free hand button
-        FreeHandActionList fbreeObj = new FreeHandActionList();
+        FreeHandAction fbreeObj = new FreeHandAction();
         freeBtn.addActionListener(fbreeObj);
         this.add(freeBtn);
 
         JButton eraserBtn = new JButton("Eraser");    //Eraser button
-        EraserActionList eraserObj = new EraserActionList();
+        EraserAction eraserObj = new EraserAction();
         eraserBtn.addActionListener(eraserObj);
         this.add(eraserBtn);
 
         JButton clearBtn = new JButton(" Clear All ");  // Clear All button
-        ClearActionList clearObj = new ClearActionList();
+        ClearAllAction clearObj = new ClearAllAction();
         clearBtn.addActionListener(clearObj);
         this.add(clearBtn);
 
         JButton undoBtn = new JButton(" Undo ");  // Undo button
-        UndoActionList undoObj = new UndoActionList();
+        UndoAction undoObj = new UndoAction();
         undoBtn.addActionListener(undoObj);
         this.add(undoBtn);
 
+        JButton redoBtn = new JButton(" Redo ");  // Undo button
+        RedoAction redoObj = new RedoAction();
+        redoBtn.addActionListener(redoObj);
+        this.add(redoBtn);
+
         JButton saveBtn = new JButton(" Save ");  // Save button
-        SaveAsJPG saveObj = new SaveAsJPG();
+        SaveAsJPGAction saveObj = new SaveAsJPGAction();
         saveBtn.addActionListener(saveObj);
         this.add(saveBtn);
-        
+
         JButton openBtn = new JButton(" Open ");  // Open button
-        OpenJPG openObj = new OpenJPG();
+        OpenJPGAction openObj = new OpenJPGAction();
         openBtn.addActionListener(openObj);
         this.add(openBtn);
+
     }
 
     //*************** SHAPES BUTTONS  *****************\\
-    public class LineActionList implements ActionListener {
+    public class LineButtonAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            if (MyPanel.isColorClicked == true) {
-                MyPanel.isLineClicked = true;
-                MyPanel.isRectClicked = false;
-                MyPanel.isOvalClicked = false;
-                MyPanel.isFreeHandClicked = false;
-                MyPanel.isEraserClicked = false;
-            } else if (MyPanel.isColorClicked == false) {
-                JOptionPane.showMessageDialog(null, "Please choose the color first", "Choose Color", JOptionPane.ERROR_MESSAGE);
-            }
+            MyPanel.isLineClicked = true;
+            MyPanel.isRectClicked = false;
+            MyPanel.isOvalClicked = false;
+            MyPanel.isFreeHandClicked = false;
+            MyPanel.isEraserClicked = false;
+
         }
     }
 
-    public class RectActionList implements ActionListener {
+    public class RectButtonAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
-            if (MyPanel.isColorClicked == true) {
-                MyPanel.isRectClicked = true;
-                MyPanel.isLineClicked = false;
-                MyPanel.isOvalClicked = false;
-                MyPanel.isFreeHandClicked = false;
-                MyPanel.isEraserClicked = false;
-            } else if (MyPanel.isColorClicked == false) {
-                JOptionPane.showMessageDialog(null, "Please choose the color first", "Choose Color", JOptionPane.ERROR_MESSAGE);
-            }
+            MyPanel.isRectClicked = true;
+            MyPanel.isLineClicked = false;
+            MyPanel.isOvalClicked = false;
+            MyPanel.isFreeHandClicked = false;
+            MyPanel.isEraserClicked = false;
         }
     }
 
-    public class OvalActionList implements ActionListener {
+    public class OvalButtonAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            if (MyPanel.isColorClicked == true) {
-                MyPanel.isOvalClicked = true;
-                MyPanel.isLineClicked = false;
-                MyPanel.isRectClicked = false;
-                MyPanel.isFreeHandClicked = false;
-                MyPanel.isEraserClicked = false;
-            } else if (MyPanel.isColorClicked == false) {
-                JOptionPane.showMessageDialog(null, "Please choose the color first", "Choose color", JOptionPane.ERROR_MESSAGE);
-            }
+            MyPanel.isOvalClicked = true;
+            MyPanel.isLineClicked = false;
+            MyPanel.isRectClicked = false;
+            MyPanel.isFreeHandClicked = false;
+            MyPanel.isEraserClicked = false;
         }
     }
     //*************** Other BUTTONS  *****************\\
 
-    public class FreeHandActionList implements ActionListener {
+    public class FreeHandAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            if (MyPanel.isColorClicked == true && MyPanel.isFreeHandClicked == false) {
-                MyPanel.isFreeHandClicked = true;
-                MyPanel.isLineClicked = MyPanel.isRectClicked = MyPanel.isOvalClicked = false;
-
-            } else if (MyPanel.isColorClicked == false) {
-                JOptionPane.showMessageDialog(null, "Please choose the color first", "Choose color", JOptionPane.ERROR_MESSAGE);
-            }
+            MyPanel.isFreeHandClicked = true;
+            MyPanel.isLineClicked = MyPanel.isRectClicked = MyPanel.isOvalClicked = false;
 
         }
-
     }
 
-    public class EraserActionList implements ActionListener {
+    public class EraserAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -172,10 +153,9 @@ public class MainToolBar extends JToolBar {
             MyPanel.isFreeHandClicked = false;
 
         }
-
     }
 
-    public class ClearActionList implements ActionListener {
+    public class ClearAllAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -188,39 +168,39 @@ public class MainToolBar extends JToolBar {
             MyPanel.isChanged = true;
             MyPanel.imageBuffer = null;
         }
-
     }
 
-    public class UndoActionList implements ActionListener {
+    public static class UndoAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (MyPanel.historyCounter > 0) {
-                MyPanel.history.remove(MyPanel.history.lastElement());
-                MyPanel.historyCounter--;
-                MyPanel.x1 = MyPanel.x2 = MyPanel.y1 = MyPanel.y2 = 0;
-                MyPanel.isChanged = true;
 
-            } else {
-                JOptionPane.showInternalMessageDialog(null, "More undo pressing will not undo your choices in life!", "مفيش تانى!", JOptionPane.WARNING_MESSAGE);
-            }
+            MyPanel.undoAction();
         }
     }
 
-    public class SaveAsJPG implements ActionListener {
+    public static class RedoAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            MyPanel.isSaved=true;
+            MyPanel.redoAction();
+        }
+    }
+
+    public class SaveAsJPGAction implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            MyPanel.isSaved = true;
         }
 
     }
-    
-    public class OpenJPG implements ActionListener {
+
+    public class OpenJPGAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            MyPanel.isFileOpened=true;
+            MyPanel.isFileOpened = true;
         }
 
     }
@@ -258,31 +238,15 @@ public class MainToolBar extends JToolBar {
     }
 
     //*************** COLORS BUTTONS  *****************\\
-    public class RedActionList implements ActionListener {
+    public class ColorButtonAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            MyPanel.color = Color.RED;
-            MyPanel.isColorClicked = true;
+            JColorChooser colorChooser = new JColorChooser();
+            JFrame colorFrame = new JFrame();
+            Color color = colorChooser.showDialog(colorFrame, "Select a Color", MyPanel.color);
+            colorButton.setBackground(color);
+            MyPanel.color = color;
         }
     }
-
-    public class GreenActionList implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            MyPanel.color = Color.GREEN;
-            MyPanel.isColorClicked = true;
-        }
-    }
-
-    public class BlueActionList implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            MyPanel.color = Color.BLUE;
-            MyPanel.isColorClicked = true;
-        }
-    }
-//
 }

@@ -7,22 +7,25 @@ import javax.swing.*;
 
 /**
  *
- * @author marymnasr
+ * @author Mario & Marymnasr
  */
 public class PaintBrushApp extends JFrame {
-
+    
     public static void main(String[] args) {
       
-        JFrame myFrame = new JFrame("Java Paint App");
+        JFrame myFrame = new JFrame("Java Paint App by Mario & Mariam Nasr");
         MainToolBar mainBar = new MainToolBar();
-        JPanel p = new JPanel();
+        JPanel toolbarPanel = new JPanel();
         MyPanel myPanel = new MyPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(mainBar);
-        myFrame.add(mainBar, BorderLayout.SOUTH);
+        
+        toolbarPanel.setLayout(new BoxLayout(toolbarPanel, BoxLayout.Y_AXIS));
+        toolbarPanel.setBounds(200, 200, 40, 50);
+        toolbarPanel.add(mainBar);
+        
+        myFrame.add(toolbarPanel, BorderLayout.SOUTH);
         myFrame.add(myPanel, BorderLayout.CENTER);
         
-        
+    
         myFrame.setSize(900, 500);
         myFrame.setLocationRelativeTo(null);
         myFrame.setVisible(true);

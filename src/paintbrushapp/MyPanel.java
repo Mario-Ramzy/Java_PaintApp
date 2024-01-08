@@ -3,7 +3,6 @@ package paintbrushapp;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Integer.min;
@@ -17,18 +16,19 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
- * @author marymnasr & Mario Ramzy
+ * @author Mario & Marymnasr
  */
 public class MyPanel extends JPanel implements Runnable {
 
     // Paint Attributes
     static int x1, y1, x2, y2;
-    static Color color;
+    static Color color = Color.RED;
     static Stroke stroke;
     protected static Vector<Shape> history;
     protected static int historyCounter;
+    protected static int redoCounter;
     static BufferedImage imageBuffer = null;
-    
+
     // Temp Variables
     Line tempLine;
     Oval tempOval;
@@ -37,11 +37,10 @@ public class MyPanel extends JPanel implements Runnable {
     Eraser tempEraser;
 
     // Flags
-    static boolean isColorClicked;
     static boolean isLineClicked;
     static boolean isRectClicked;
     static boolean isOvalClicked;
-    static boolean isFreeHandClicked;
+    static boolean isFreeHandClicked = true;
     static boolean isEraserClicked;
     static boolean isFilledChecked;
     static boolean isChanged;
@@ -49,19 +48,44 @@ public class MyPanel extends JPanel implements Runnable {
     static boolean isFileOpened = false;
 
     public MyPanel() {
-        this.setBackground(Color.WHITE);
-
+        // Initializing Variables
         x1 = y1 = x2 = y2 = historyCounter = 0;
         history = new Vector();
         stroke = new BasicStroke(2f); // default stroke (Solid)
+        int[] keybuffer = new int[2];
 
+        // Setting mouse and Keyboarf Listeners 
+        this.setBackground(Color.WHITE);
         this.setFocusable(true);   //make the default panel focus is false 
         MouseLis mLisObj = new MouseLis();   // Mouse Listener -> press & release
         this.addMouseListener(mLisObj);
         MouseMotLis mMLisObj = new MouseMotLis();  // Mouse Listener -> Drag 
         this.addMouseMotionListener(mMLisObj);
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                keybuffer[1] = e.getKeyCode();
+            }
 
-        new Thread(this).start();;
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                keybuffer[0] = e.getKeyCode();
+                if (keybuffer[0] == KeyEvent.VK_CONTROL && keybuffer[1] == KeyEvent.VK_Z) {
+                    MyPanel.undoAction();
+                } else if (keybuffer[0] == KeyEvent.VK_CONTROL && keybuffer[1] == KeyEvent.VK_S) {
+                    MyPanel.isSaved = true;
+                } else if (keybuffer[0] == KeyEvent.VK_CONTROL && keybuffer[1] == KeyEvent.VK_O) {
+                    MyPanel.openImage();
+                }
+            }
+        });
+
+        // Starting flag checker thread
+        new Thread(this).start();
     }
 
     public class MouseLis implements MouseListener // Inner class to implement MouseListener  (press & release)
@@ -84,29 +108,35 @@ public class MyPanel extends JPanel implements Runnable {
                 if (isLineClicked) {
                     x2 = e.getX();
                     y2 = e.getY();
-                    history.add(new Line(x1, y1, x2, y2, color, stroke));
+                    history.add(historyCounter, new Line(x1, y1, x2, y2, color, stroke));
+                    redoCounter = 0;
                     historyCounter++;
                     x1 = x2 = y1 = y2 = 0;
 
                 } else if (isRectClicked) {
-                    history.add(new Rectangle(min(x1, x2), min(y1, y2), abs(x1 - x2), abs(y1 - y2), color, stroke, isFilledChecked));
+                    history.add(historyCounter, new Rectangle(min(x1, x2), min(y1, y2), abs(x1 - x2), abs(y1 - y2), color, stroke, isFilledChecked));
+                    redoCounter = 0;
                     historyCounter++;
                     x1 = x2 = y1 = y2 = 0;
 
                 } else if (isOvalClicked) {
-                    history.add(new Oval(min(x1, x2), min(y1, y2), abs(x1 - x2), abs(y1 - y2), color, stroke, isFilledChecked));
+                    history.add(historyCounter, new Oval(min(x1, x2), min(y1, y2), abs(x1 - x2), abs(y1 - y2), color, stroke, isFilledChecked));
+                    redoCounter = 0;
                     historyCounter++;
                     x1 = x2 = y1 = y2 = 0;
 
                 } else if (isFreeHandClicked) {
-                    history.add(tempFShape);
+                    history.add(historyCounter, tempFShape);
+                    redoCounter = 0;
                     historyCounter++;
                     x1 = x2 = y1 = y2 = 0;
+
                 } else if (isEraserClicked) {
-                    history.add(tempEraser);
+                    history.add(historyCounter, tempEraser);
+                    redoCounter = 0;
                     historyCounter++;
                     x1 = x2 = y1 = y2 = 0;
-                    System.out.println(historyCounter);
+
                 }
 
             }
@@ -123,7 +153,6 @@ public class MyPanel extends JPanel implements Runnable {
         @Override
         public void mouseClicked(MouseEvent e) {
         }
-
     }
 
     public class MouseMotLis implements MouseMotionListener // Inner class to implement MouseMotionListener  (drag)
@@ -151,7 +180,6 @@ public class MyPanel extends JPanel implements Runnable {
                 } else if (isEraserClicked) //Eraser dragging
                 {
                     Graphics g = getGraphics();
-                    //Graphics2D g2d = (Graphics2D) g;
                     g.setColor(Color.WHITE);
                     tempOval = new Oval(e.getX(), e.getY(), 10, 10, Color.WHITE, stroke, true);
                     tempEraser.pushEraser(tempOval);
@@ -164,7 +192,6 @@ public class MyPanel extends JPanel implements Runnable {
         @Override
         public void mouseMoved(MouseEvent e) {
         }
-
     }
 
     //*************** Paint Method  *****************\\
@@ -172,12 +199,13 @@ public class MyPanel extends JPanel implements Runnable {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
-        
-        if (imageBuffer != null){
-        g.drawImage(imageBuffer, 0, 0, this);
-        System.out.println(imageBuffer.getRGB(x1, y1));
+
+        // Drawing the image Buffer opened from file
+        if (imageBuffer != null) {
+            g.drawImage(imageBuffer, 0, 0, this);
         }
-        
+
+        // Drawing the previously drawed objects from the history vector
         if (historyCounter > 0) {
             for (int i = 0; i < historyCounter; i++) {
                 switch (history.elementAt(i).getType()) {
@@ -233,6 +261,8 @@ public class MyPanel extends JPanel implements Runnable {
                 }
             }
         }
+
+        // Draw the object at the moment
         if (this.isFocusable() && (x1 > 0 && y1 > 0)) {
             g2d.setColor(color);
             g2d.setStroke(stroke);
@@ -241,7 +271,6 @@ public class MyPanel extends JPanel implements Runnable {
                 g2d.drawLine(x1, y1, x2, y2);
             } else if (isOvalClicked) //painting Ovals
             {
-
                 if (isFilledChecked) // if the current oval is checked to be filled, then fill it while drawing
                 {
                     g2d.fillOval(min(x1, x2), min(y1, y2), abs(x1 - x2), abs(y1 - y2));
@@ -269,7 +298,7 @@ public class MyPanel extends JPanel implements Runnable {
                 isSaved = false;
             }
             if (isFileOpened == true) {
-                this.openImage();
+                MyPanel.openImage();
                 isFileOpened = false;
             }
             if (isChanged == true) {
@@ -285,7 +314,7 @@ public class MyPanel extends JPanel implements Runnable {
     }
 
     public void saveImage() {
-       BufferedImage imageTemp = null;
+        BufferedImage imageTemp = null;
 
         try {
             imageTemp = new Robot().createScreenCapture(this.bounds());
@@ -318,7 +347,7 @@ public class MyPanel extends JPanel implements Runnable {
                 ImageIO.write(imageTemp, "jpg", fileToSave);
                 JOptionPane.showMessageDialog(null, "Image Saved Successfully!", "Saved", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
-                System.out.println("error");
+                JOptionPane.showMessageDialog(null, "Image Couldn't be Saved!", "Error", JOptionPane.ERROR_MESSAGE);
             }
 
         } else {
@@ -327,23 +356,50 @@ public class MyPanel extends JPanel implements Runnable {
 
     }
 
-    public void openImage() {
-        
+    public static void openImage() {
+
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Choose Image...");
         fileChooser.setAcceptAllFileFilterUsed(false);
         FileNameExtensionFilter extFilter = new FileNameExtensionFilter("JPEG file", "jpg", "jpeg");
         fileChooser.addChoosableFileFilter(extFilter);
         int userSelection = fileChooser.showOpenDialog(new JFrame());
-        
+
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             try {
                 imageBuffer = ImageIO.read(new File(fileChooser.getSelectedFile().toURI()));
-                isChanged=true;
+                isChanged = true;
             } catch (IOException ex) {
-                System.out.println("hiiii");
+
             }
+        }
+    }
+
+    public static void undoAction() {
+        if (historyCounter > 0) {
+            historyCounter--;
+            redoCounter++;
+            x1 = x2 = y1 = y2 = 0;
+            isChanged = true;
+
+        } else {
+            JOptionPane.showInternalMessageDialog(null, "More undo pressing will not undo your choices in life!", "مفيش تانى!", JOptionPane.WARNING_MESSAGE);
         }
 
     }
+
+    public static void redoAction() {
+
+        if (MyPanel.historyCounter > -1 && MyPanel.redoCounter > 0) {
+            MyPanel.historyCounter++;
+            MyPanel.redoCounter--;
+            MyPanel.x1 = MyPanel.x2 = MyPanel.y1 = MyPanel.y2 = 0;
+            MyPanel.isChanged = true;
+        } else if (MyPanel.historyCounter == 0) {
+            JOptionPane.showInternalMessageDialog(null, "What Should i redo if didn't draw any thing!!", "ابدأ بنفسك!", JOptionPane.WARNING_MESSAGE);
+        } else {
+            JOptionPane.showInternalMessageDialog(null, "No more drawing are in the stack!", "خلاص عملنا كل حاجة", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
 }

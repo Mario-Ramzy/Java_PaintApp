@@ -6,7 +6,7 @@ import java.util.Vector;
 
 /**
  *
- * @author Mario
+ * @author Mario & Marymnasr
  */
 public class Eraser extends Shape {
     static final int TYPE = 1000;
